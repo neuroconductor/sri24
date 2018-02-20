@@ -1,19 +1,62 @@
-language: R
+language: r
 sudo: false
 cache: packages
-after_success: if [ "$TRAVIS_OS_NAME" == "linux" ]; then Rscript -e 'covr::coveralls(type
-  = "all")'; fi
 warnings_are_errors: true
-before_deploy: if [ "$TRAVIS_OS_NAME" == "osx" ]; then rm -f *.tar.gz; fi
+use_bioc: true
+bioc_required: true
+cran: http://cran.rstudio.com
+addons:
+  apt:
+    packages:
+    - libfftw3-dev
+    - libgsl0-dev
+    - libgsl0ldbl
+os:
+- linux
+- osx
+osx_image: xcode9
+dist: trusty
+env:
+  global:
+  - RGL_USE_NULL=TRUE
+  - PROJECT_NAME=neuroconductor
+  - DISPLAY=:99.0
 r_check_args: "--as-cran --install-args=--build"
-
+before_install:
+- export PROJ_DIR=`basename $PWD`
+- fname=travis_helpers.sh
+- wget -O ${fname} http://bit.ly/travis_helpers
+- cat ${fname}; source ${fname}; rm ${fname}
+- cat DESCRIPTION
+- start_xvfb ;
+- no_open_mp ;
+- Rscript -e 'source("https://install-github.me/mangothecat/callr")'
+- remove_neuroc_packages
+- cat DESCRIPTION
+- install_remotes_no_dep
+- cat DESCRIPTION
+- export PACKAGE_NAME=`package_name`
+- if [[ "${PACKAGE_NAME}" == "waveslim" ]]; then fftw_install ; fi
+- if [[ "${PACKAGE_NAME}" == "dti" ]]; then gsl_install ; fi
+- if [[ "${PACKAGE_NAME}" == "ROpenCVLite" ]]; then shopt -s expand_aliases ; x=`Rscript
+  -e "cat(Sys.which('R'))"` ; alias R="travis_wait 100 ${x}" ; fi
+after_success:
+- cat ${PACKAGE_NAME}.Rcheck/00install.out
+- cat ${PACKAGE_NAME}.Rcheck/00check.log
+after_failure:
+- cat ${PACKAGE_NAME}.Rcheck/00install.out
+- cat ${PACKAGE_NAME}.Rcheck/00check.log
+before_deploy:
+- if [[ "${TRAVIS_OS_NAME}" = "osx" ]]; then rm -f *.tar.gz; fi
 deploy:
   provider: releases
-  skip_cleanup: yes
-  api_key:
-    secure: GONi+7OmHaFIZgTHkfO7rGar5kNuFMKMp8EisDkIQwNujGGjVW75KDQojNFOkQonGTaa/P+N19dNOoPGMBf1ffE8L2f9kxVa2dvDKSgVoln27dShLorHOdRZb8531S3asZQhI5YNhSNV1AY9bWR2iRvWwsUHM89mI/NzQ3VVeXwS2qYTi6H7SDNcmSodgaD9iSvbbHqNLnxEtrU+wJOyL384EYEqJakHioi0q2o5VlkqR/q0KEqg3UfjtWIXUGJbk1IOJ0aS1vG/YbOqln2FqkhndngfDUrHpDqOml+hycUx6hIrNLcsqXO7ZNeuqXfvv1/hC2hW926G3hZx/MgQN2GFQxq7UW85cBxes0lqiQohaQ1UFI1MiBu1AfhAtCC7EfNPS2sdMiY2lTmNLxKwXBLilWD64+UP25ry4rKw7+/auk1+LFeXc+LegAjAyl9x9eyHoS0JaIJkfsxYsL0RHO+woqcZS7h+2p0UCrzoRey+N0RLWYBwT8vyYujS3hYWmCqq4IoNoT9URAitYlVJarrDk0Rd7Yy0MKi/Mb4Xv0UTh+AvoGmEn8Df9u8v0AxeT6gzvoO+YcJ4IXimnfHJ6ozamaYygg5ntqCoBa8id8TFZyqXEkGpApdcukQ9ulZlN6nH4rViaC1XxjGn1AWWdfRLx0Nz3K45pexAbi8iWsE=  
-  file_glob: yes
-  file: sri24*.t*gz
+  skip_cleanup: true
+  file_glob: true
+  file: "${PACKAGE_NAME}*.t*gz"
   on:
-    repo: muschellij2/sri24
-
+    tags: true
+  api-key:
+    secure: k4yEoPSKN/6TbMhlicq5ucz7+R4pB4Gfj1ktYeQCT8EjUSysp5wwtgA4rkh9w/INrCd14UoycscwnUqsFhPQ3EPgjEIOq28TX341wK6WhdSTPgwQpI9OCQx5nY8uvegViCKHnohUFvGzJ79PYR6uBX5YD1zE3j9sQeZrGDip5c2ltQRUS0CoveSRpUmihOxBaxtJodukJ4LWX7NN6yXiIz8LU3D6LsOsvsMfsmQxgs2nq100bjylz5jowui/hxMTmc2wdpYCZ8et7jPGkAm6ZaGyn1+7nZlkPzpAKIF+voIUSZ9v0FrZIGPZ+mpWKRu9wxQxMV8ej3vnf5VdSgJIoEvq1qD52ICDlgCITDORccPYfJa4LAVOargmZVw0Z/YhXTsenEaiMdly8rUHW+Zn1J4EnjZvH4ntWvXr12bwttFz6wfR3oGgBey9esdKavyj+wrs4+LY3TZsw7SWikxAlBz5uu/85ig5CiQejo8gwpALpG31sa2RFd3O2/lqhCYroChNijYZboCXqRb7qm+8mjVMOJMxCS0izo/jFYZvlQtvSL3LRxQPMTtmJWkj1GiCIZntKSAUOF1l+nTSxNKNbnNlHeCJRLmRdTVmFq7B0KhbLK5w6D5sxozwZu4IbyxejLXWL27OYnsf+eDMsEcd9VfDV7K4gTFVDXQreloaDUU=
+after_deploy:
+- if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then echo 'covr::coveralls(type = "all")'
+  > neuroc_covr.R ; travis_wait 100 Rscript neuroc_covr.R ; rm neuroc_covr.R ; fi

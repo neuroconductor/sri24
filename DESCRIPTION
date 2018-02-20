@@ -23,3 +23,5 @@ VignetteBuilder: knitr
 URL: https://github.com/muschellij2/sri24
 BugReports: https://github.com/muschellij2/sri24/issues
 RoxygenNote: 6.0.1
+Remotes: neuroconductor/neurobase@c668aabafa4a51381b7cbc56ff23101abd19e337
+biocViews: 
