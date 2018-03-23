@@ -24,4 +24,4 @@ URL: https://github.com/muschellij2/sri24
 BugReports: https://github.com/muschellij2/sri24/issues
 RoxygenNote: 6.0.1
 biocViews: 
-Remotes: neuroconductor/neurobase@b3a4d24cb379ed8bd3f5053e80dd4a161ca7e388
+Remotes: neuroconductor/neurobase@975b860b44ecbee251f13edd88e9a64fca978462
