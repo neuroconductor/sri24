@@ -39,6 +39,7 @@ env:
   - R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
   - _R_CHECK_FORCE_SUGGESTS_=false
   - CACHE_NAME="${TRAVIS_OS_NAME}-R-${TRAVIS_R_VERSION}"
+  - secure: kVjNt2YjRwaTXTnoLHHQ0F013Sugb773gHRpS98v9MX4sw1BftmKpqmf1+xv6yhoIvKnLN2NvT+L5r0bnKmzMSEFbFUEFro+HcIF1yh6wMU5TiUB6Q2D2Pv5AgaZDuI+EfqF5RP4NVMZylT/orMevY97eLO8U/+2uV5GiVM1oOiTBTklJKSIZrNflZeepbltxwXqjT+shkxhqgcxbR3MLh1dCdkaKeCPCTORrIMUFa5BQrLEa6qHLu8F3/NW26T/6C2jK/lfaqcQ4JOQZMPSTAXPFye/MNfX+YuJY/t/z+sHVogbBT+pIcvOjAxIbjzWO4xGDE83zkPPcv/RhgybJxanGOCRsHARczU2V/+7GCvUPWfC4z41og4eZIgXDRoOHqvV0QGN+uBXXUq17NLrPFeZhTKQNIGwbZeag+P8nHyoCiTKrXj9wSKwabBhI9CDRVoA+fW9L+ujF3pBZI5ytwb+9iUfRA4H9VEH/9YU0cLx2sOydPYbsHAQkHor4QKzsAK+JQXy+5PMMUzW7V9+1dcOnnSnReEmQpvc2AnVcBi/5h/itZdJgM5IrnF1gsgMg5TXYW1p7BYGpkApjvTsaHoLVpmms7kTmeHSs1PMOdTAKcGAjWvCilnTw2/DHKw7Mx97O+82X97wmWjAdccoTAXLnbmAzGYwZLi+upqA7t8=
 r_check_args: "--as-cran --install-args=--build"
 before_install:
 - ulimit -n 2048
@@ -103,5 +104,3 @@ after_deploy:
 - if [[ "${TRAVIS_OS_NAME}" == "linux" && ${TRAVIS_R_VERSION_STRING} = "release" &&
   -z "${run_coverage}" ]]; then echo 'covr::coveralls(type = "all", quiet = FALSE)'
   > neuroc_covr.R ; travis_wait 100 Rscript neuroc_covr.R ; rm neuroc_covr.R ; fi
-
-#neuroc.deps version (SHA): ddcf477
